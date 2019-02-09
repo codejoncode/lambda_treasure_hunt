@@ -8,17 +8,15 @@ class WindowView extends Component {
     }
 
     render () {
-        // console.log(this.props)
         let exits = ""
         for(let exit of this.props.exits){
             exits += exit + ","
         }
-        // console.log(exits)
-        // console.log(this.props)
+        
         return (
             <div className = "container">
                 <div className="roomTitle">
-                    <h3>{this.props.room_title}</h3>
+                    <h3>{`${this.props.room_id} ${this.props.room_title}`}</h3>
                     <p>{this.props.description}</p>
                     
                     {this.props.items.map((id, item) => <span key = {id}>{item}</span>)}

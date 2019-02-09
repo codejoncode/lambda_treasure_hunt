@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import "./App.css";
 import axios from "axios";
-
-
+import Pusher from "pusher-js";
+import {Sigma, RelativeSize, NodeShapes, EdgeShapes } from "react-sigma"
 /*Data*/
-import graph from "./Data/Data"
 import data from "./Data/DataForGraph"
+import Queue from "./Data/Queue"
 /*Data*/
 
 /*Components */
@@ -14,11 +14,19 @@ import DirectionChoice from "./Components/DirectionChoice";
 import TimerOnScreen from "./Components/TimerOnScreen";
 import Movement from "./Components/Movements";
 import Map from "./Components/Map";
+import Title from "./Components/Title";
 /*Components */
 require('dotenv').config()
 
 const apiInit = "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/";
-const apiMove = "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/";
+const apiMove = "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/"; // {direction : 'n'}
+const apiFly = "https://lambda-treasure-hunt.herokuapp.com/api/adv/dash/"; // {"direction" : "n", "next_room_id": "123"}
+const apiTake = "https://lambda-treasure-hunt.herokuapp.com/api/adv/take/"; // {name : boots}
+const apipDrop = "https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/"; // {name : boots}
+const apiSell = "https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/"; //{name: "treasure", "confirm": "yes"}
+const apiWear = "https://lambda-treasure-hunt.herokuapp.com/api/adv/wear/"; //{name : "boots"} for terrian. 
+
+
 
 
 /*BST class is available that features north south east and west and value haven't decided what the value is going to be just yet
@@ -59,11 +67,16 @@ class App extends Component {
       graphExits: data.exits, 
       graph : data.graph,
       path : [],
+      display : {},
+      roomNumberToGoTo: 0, 
+      myItems : [],
     };
     this.automateMovement = this.automateMovement.bind(this);
+    this.travelSetPath = this.travelSetPath.bind(this); 
   }
 
   componentDidMount() {
+
     const token = `Token ${process.env.REACT_APP_SECRET_CODE}`
     const reqOptions = {
       headers: {
@@ -108,6 +121,8 @@ class App extends Component {
           const second = Number(coordinates.slice(4, 6));
           graphXY[roomId] = [first, second];
         }
+        console.log(roomId, "117")
+        const display = this.drawOutMap(graph, roomId)
         this.setState({
           initialize : true,
           roomId,
@@ -123,18 +138,80 @@ class App extends Component {
           graphXY,
           reqOptions,
           graphExits,
-        });
+          display, 
+          traveling : "blue"
+        }, this.handleStartTimer());
+          /*Pusher is last it will hault the program as other players enter my zone. */
+      //   var pusher = new Pusher (process.env.REACT_APP_PUSHER_KEY, {
+      //     cluster: 'us2',
+      //     forceTLS: true
+      //   })
+      //   var channel = pusher.subscribe(`p-channel-${response.data.uuid}`);
+      //   channel.bind('broadcast', function(data) {
+      //   alert(JSON.stringify(data));
+      // });
+
       })
       .catch(error => {
+        this.setState({traveling: "red"})
         console.log(error.response);
       });
 
 
   }
 
-  drawOutMap = () => {
+  getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
+  drawOutMap = (updatedGraph) => {
+    const nodes = [];
+    const edges = [];
+    const roomId = this.state.roomId;
+    console.log(this.state.roomId, roomId)
+    for (let g in updatedGraph){
+        let temp = {}
+        if (Number(g) === Number(roomId)){
+            temp = { id: g, label: `${g}`, x: data.coor[g][0], y: data.coor[g][1], size: 15, color: "red", borderColor: this.getRandomColor(), type : "diamond"}
+        } else {
+            temp = { id: g, label: `${g}`, x: data.coor[g][0], y: data.coor[g][1], size: 1, color: "#282D31", borderColor: this.getRandomColor(), type : "equilateral"}
+        }
+        nodes.push(temp)
+    }
+    
+    let count = 0 
+    for (let g in updatedGraph){
+        for (let d in updatedGraph[g]){
+            const id = `id${count}`
+            count += 1
+            if (updatedGraph[g][d] !== null){
+                if (Number(g) === Number(roomId)){
+                    const temp = {id: id, source: g, target: updatedGraph[g][d], color: '#9E0023',  type: "curve", size: 0.5 }
+                    edges.push(temp)
+                } else {
+                    const temp = {id: id, source: g, target: updatedGraph[g][d], color: '#282c34',  type: "arrow", size: 0.5 }
+                    edges.push(temp)
+                }
+                // const temp = {id: id, source: g, target: updatedGraph[g][d], color: '#282c34',  type: "arrow", size: 0.5 }
+                // edges.push(temp)
+            }
+        }
+    }
+    const display = {
+        nodes, 
+        edges,
+    }
+    console.log(display)
+    
+    
+    return display
   }
+  
 
   handleMove = (direction) => {
     if (direction === null){
@@ -196,7 +273,7 @@ class App extends Component {
           if (roomId !== this.state.roomId){
             graph[roomId][opposite] = graph[roomId][opposite] && roomId !== this.state.roomId ? this.state.roomId : null; 
           }
-          
+          const display = this.drawOutMap(graph, roomId)
           this.setState(
             {
               previousDirection: direction,
@@ -212,22 +289,16 @@ class App extends Component {
               moves,
               exits,
               graphXY,
-              graphExits
+              graphExits,
+              display, 
             },
-            this.handleStartTimer()
+            this.handleStartTimer(),
           );
         } else {
           /*Make sure you calculate the previousDirection currently timing is important*/
-          if (this.state.previousDirection.length && this.state.previousId) {
-            console.log(
-              "been here before",
-              previousId,
-              this.state.previousDirection
-            );
-            
-          }
-          graph[response.data.room_id][opposite] = this.state.roomId
           
+          graph[response.data.room_id][opposite] = this.state.roomId
+          const display = this.drawOutMap(graph, roomId)
           this.setState(
             {
               graph,
@@ -243,13 +314,17 @@ class App extends Component {
               moves,
               exits,
               graphXY,
-              graphExits
+              graphExits,
+              display, 
             },
-            this.handleStartTimer()
+            this.handleStartTimer(),
+            // this.twoFunctions()
+            
           );
         }
       })
       .catch(error => {
+        this.setState({traveling : "red"})
         console.log(error);
         
       });
@@ -264,10 +339,7 @@ class App extends Component {
     this.setState({ [event.target.name]: event.target.value });
   };
 
-  sleep = (ms, cb = null) => {
-    if(cb){
-      cb()
-    }
+  sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
 
@@ -406,7 +478,8 @@ class App extends Component {
       tm: 0,
       tick: 0,
       timerCount: 0,
-      timerStop: timerStop
+      timerStop: timerStop,
+      traveling : "green"
     });
   };
 
@@ -419,7 +492,8 @@ class App extends Component {
     console.log(this.state.roomId, "room id to choose direction for");
     this.setState({
       timerStop: false,
-      timer: window.setInterval(this.startTimer, 1000)
+      timer: window.setInterval(this.startTimer, 1000),
+      traveling: "yellow",
     });
   };
   handleStop = () => {
@@ -484,8 +558,11 @@ class App extends Component {
   /*turn the numbers/strings to directions */
   const directions = []
   /* keep track of all the paths to be checked */
-  const queue = [[start]]
-
+  const queue = new Queue()
+  
+  queue.enqueue([start])
+  // const queue = [[start]]
+  console.log(queue.front())
   /* return path if start is goal */
   if (start === target){
     console.log("ALREADY THERE NO NEED TO FIND SHORTEST PATH")
@@ -493,18 +570,22 @@ class App extends Component {
   }
 
   /* Keeps looping until all possible paths have been checked */
-  while (queue.length){
+  while (queue.size > 0){
     /* pop the first path from the queue */
-    const path = queue.pop(0)
+    const path = queue.dequeue()
+    //const path = [[start]]
     /*get the last node from the path */
     const node = path[path.length - 1]
+    console.log(path, node)
     if (explored.includes(node) === false){
+      console.log(node)
       const neighbours = graph[node]
+      console.log(neighbours)
       /* go through all neighbour nodes, construct a new path and push it into the queue */
       for(let neighbour of neighbours){
         const new_path = [...path]
         new_path.push(neighbour)
-        queue.push(new_path)
+        queue.enqueue(new_path)
         /*return path if neighbour is goal */
         if (neighbour === String(target)){
           for (let i = 0 ; i< new_path.length-1; i++){
@@ -567,18 +648,49 @@ class App extends Component {
     return find_path 
   }
 
+  goToRoom = () => {
+    const directionsToTravel = this.prepGraph(this.state.roomId, this.state.roomNumberToGoTo);
+    this.travelSetPath(directionsToTravel);
+
+  }
+  async travelSetPath(path){
+    const travelPath = path.slice()
+    if (path.length > 0){
+      while(travelPath.length > 0){
+        console.log(travelPath);
+        const direction = travelPath.shift();
+        this.handleMove(direction);
+        this.setState({traveling : "yellow"})
+        await this.sleep(
+          (this.state.cooldown + 1.5) * 1190
+        ); 
+        
+  
+      }
+      this.setState({traveling : "green"})
+    }
+  }
+
+  
 
 
   render() {
+    // const display = Object.assign({}, this.state.display)
+    // console.log(display)
+    const display = Object.assign({}, this.drawOutMap(this.state.graph))
     return (
       <div className="container backGround">
-        
+        <Title />
         <Movement token = {this.state.token}
           handleClick = {this.handleClick}
           handleAuto = {this.automateMovement}
           handleStop = {this.handleStop}
           handleChange = {this.handleChange}
+          roomNumberToGoTo = {this.state.roomNumberToGoTo}
           graphLength = {Object.keys(this.state.graph).length}
+          goToRoom = {this.goToRoom}
+          traveling = {this.state.traveling}
+          
         />
 
         <TimerOnScreen
@@ -599,12 +711,14 @@ class App extends Component {
           players={this.state.players}
           cooldown={this.state.cooldown}
           timerCount={this.state.timerCount}
+          traveling = {this.state.traveling}
         />
 
         <DirectionChoice exits = {this.state.exits} handleMove = {this.handleMove}/>
         <hr/>
         <br/>
-        <Map />
+        <Map roomId = {this.state.roomId} coor ={data.coor} initialize = {this.state.initialize} display = {display} graph = {this.state.graph}/>
+        
       </div>
     );
   }

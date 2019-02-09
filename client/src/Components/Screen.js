@@ -8,16 +8,7 @@ class Screen extends Component {
 
     }
 
-    render () {
-        let light = "";
-        let display = "";
-        if (this.props.cooldown > 10){
-            light = "led-red"
-            display = "SLOW DOWN"
-        } else{
-            light =  "led-yellow"
-            display = "move cautiously"
-        }        
+    render () {       
         return (
             <div className = "container screen">
                 <div className = "row">
@@ -27,12 +18,13 @@ class Screen extends Component {
                 </div>
                 
                 <div className="led-box">
-                    <div className={light}>
-                        {/* {display} */}
+                    <div className={`led-${this.props.traveling}`}>
+                        
                     </div>
                 </div>
                 <WindowView room_title = {this.props.room_title} room_id = {this.props.room_id} messages = {this.props.messages} exits = {this.props.exits}
-                errors = {this.props.errors} description = {this.props.description} items = {this.props.items} players = {this.props.players} 
+                errors = {this.props.errors} description = {this.props.description} items = {this.props.items} players = {this.props.players}
+                    traveling = {this.props.traveling}
                 />
 
 
