@@ -9,7 +9,7 @@ let graph = {
     7: {n: 8, s: null, e: 6, w: 56},
     8: {n: null, s: 7, e: null, w: 16},
     9: {n: 3, s: 12, e: 11, w: null},
-    10: {n: 19, s: null, e: null, w: 43},
+    10: {n: 19, s: 0, e: null, w: 43},
     11: {n: null, s: null, e: 17, w: 9},
     12: {n: 9, s: 18, e: 14, w: 21},
     13: {n: null, s: null, e: 15, w: 4},
