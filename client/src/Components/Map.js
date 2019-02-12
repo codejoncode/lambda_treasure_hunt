@@ -4,48 +4,24 @@ import { Sigma, RelativeSize } from "react-sigma";
 class Map extends Component {
   state = {
     // display : {},
-    updated: false
+    updated: false,
+    nodes : [],
+    edges : [], 
+    graph : {edges: [], nodes: []},
+    
   };
   componentDidMount() {
-    this.setState({
-      display: this.props.display,
-      updated: !this.state.updated
-    });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      JSON.stringify(nextProps.display) !== JSON.stringify(this.props.display)
-    ) {
-      this.setState({ display: this.props.display, updated: true });
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      JSON.stringify(prevProps.display) !== JSON.stringify(this.props.display)
-    ) {
-      this.setState({ display: this.props.display, updated: true });
-    }
-  }
-
-  getRandomColor = () => {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
-
-  render() {
-    const updatedGraph = Object.assign({}, this.props.graph);
+    console.log("mount up")
+    const updatedGraph = Object.assign({}, this.props.graph)
+    let graph = []
     const nodes = [];
     const edges = [];
     const roomId = this.props.roomId;
+    console.log(roomId, "roomId")
     for (let g in updatedGraph) {
       let temp = {};
       if (Number(g) === Number(roomId)) {
+        console.log(`comparison worked ${g}, ${roomId}`)
         temp = {
           id: g,
           label: `${g}`,
@@ -74,10 +50,11 @@ class Map extends Component {
     let count = 0;
     for (let g in updatedGraph) {
       for (let d in updatedGraph[g]) {
-        const id = `id${count}`;
+        const id = `id${count}`
         count += 1;
         if (updatedGraph[g][d] !== null) {
           if (Number(g) === Number(roomId)) {
+            console.log(`comparison worked ${g}, ${roomId}, ${count}`)
             const temp = {
               id: id,
               source: g,
@@ -98,35 +75,113 @@ class Map extends Component {
             };
             edges.push(temp);
           }
-          // const temp = {id: id, source: g, target: updatedGraph[g][d], color: '#282c34',  type: "arrow", size: 0.5 }
-          // edges.push(temp)
         }
       }
     }
-    const display = {
+    graph = {
       nodes,
       edges
     };
-    if (this.props.initialize && this.state.updated) {
-      return (
-        <div className="changeCanvas">
-          {this.props.roomId}
-          <div className="mapping">
-            <Sigma
-              renderer="canvas"
-              style={{ maxWidth: "inherit", height: "800px" }}
-              settings={{ drawEdges: true, clone: true }}
-              graph={display}
-            >
-              <RelativeSize initialSize={15} />
-            </Sigma>
-          </div>
-        </div>
-      );
-    } else {
-      return <div>MUST INITIALIZE</div>;
+    
+    this.setState({
+      display: this.props.display,
+      nodes, 
+      edges,
+      graph,
+    });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log("recieving props")
+    
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log("updating")
+    if (
+      JSON.stringify(prevProps.display) !== JSON.stringify(this.props.display)
+    ) {
+      this.setState({ display: this.props.display, updated: true });
     }
   }
-}
 
-export default Map;
+  getRandomColor = () => {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+
+  renderMap = () => {
+    console.log(this.state.edges)
+    console.log(this.state.nodes)
+    console.log(this.state.edges)
+    const nodes = this.state.nodes.slice()
+    const edges = this.state.edges.slice() 
+    // const graph = {nodes, edges}
+    let count = 0
+    for(let edge of edges){
+        
+        if(edge.type === "curve"){
+            console.log(edge, count)
+        }
+        count += 1 
+    }
+    count = 0
+    for (let node of nodes){
+        if(node.type === "diamond"){
+            console.log(node, count)
+        }
+    }
+
+    if (nodes.length > 0 && edges.length > 0){
+        if (this.props.initialize && this.state.updated) {
+            return (
+              <div className="changeCanvas">
+                <div className="mapping">
+                  <Sigma
+                    renderer="canvas"
+                    style={{ maxWidth: "inherit", height: "800px" }}
+                    settings={{ drawEdges: true, clone: false }}
+                    graph={{nodes, edges}}
+                  >
+                    <RelativeSize initialSize={15} />
+                  </Sigma>
+                </div>
+              </div>
+            );
+          } else {
+            return <div>MUST INITIALIZE</div>;
+          }
+    }
+    return <div>MUST INITIALIZE</div>
+
+  }
+
+  render() {
+    // return this.renderMap()
+    if (this.props.initialize && this.state.updated) {
+        return (
+          <div className="changeCanvas">
+            <div className="mapping">
+              <Sigma
+                renderer="canvas"
+                style={{ maxWidth: "inherit", height: "800px" }}
+                settings={{ drawEdges: true, clone: false }}
+                graph={this.props.display}
+              >
+                <RelativeSize initialSize={15} />
+              </Sigma>
+            </div>
+          </div>
+        );
+      } else {
+        return <div>MUST INITIALIZE</div>;
+      }
+    
+}
+}
+export default Map; 
+
