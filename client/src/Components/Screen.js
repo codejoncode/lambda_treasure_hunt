@@ -9,7 +9,7 @@ class Screen extends Component {
       <div className="container screen">
         <div className="row">
           <div className="errors col">
-            {this.props.errors.map((id, error) => (
+            {this.props.errors.map((error, id) => (
               <p key={id}>{error}</p>
             ))}
           </div>

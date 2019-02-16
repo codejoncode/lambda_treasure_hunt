@@ -15,13 +15,13 @@ class WindowView extends Component {
           <h3>{`${this.props.room_id} ${this.props.room_title}`}</h3>
           <p>{this.props.description}</p>
 
-          {this.props.items.map((id, item) => (
+          {this.props.items.map((item, id) => (
             <span key={id}>{item}</span>
           ))}
         </div>
 
         <div className="messages">
-          {this.props.messages.map((id, message) => (
+          {this.props.messages.map((message,id) => (
             <p key={id}>{message}</p>
           ))}
         </div>
@@ -30,7 +30,7 @@ class WindowView extends Component {
         </div>
 
         <div className="errors">
-          {this.props.errors.map((id, error) => (
+          {this.props.errors.map((error, id) => (
             <p key={id}>{error}</p>
           ))}
         </div>

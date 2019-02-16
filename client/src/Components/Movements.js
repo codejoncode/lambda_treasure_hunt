@@ -50,7 +50,8 @@ class Movement extends Component {
         {this.props.graphLength < 500 ? (
           <button
             onClick={
-              this.props.traveling === "green"
+              this.props.traveling === "green" || 
+              this.props.traveling === "blue"
                 ? this.props.handleAuto
                 : this.noTravel
             }
