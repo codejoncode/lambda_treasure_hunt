@@ -9,7 +9,7 @@ class MyCustomSigma extends React.Component {
   }
   componentWillReceiveProps() {
     // this.props.sigma.graph.kill()
-    console.log(this.props.sigma)
+    // console.log(this.props.sigma)
     // console.log(this.props.sigma.graph.nodes())
       
     // const updatedGraph = Object.assign({}, this.props.display)
@@ -21,12 +21,12 @@ class MyCustomSigma extends React.Component {
 
     const coors  = Object.assign({}, this.props.coor)
     // console.log(coors)
-    console.log(coors[0])
+    // console.log(coors[0])
     // let graph = []
     // const nodes = [];
     // const edges = [];
     const roomId = this.props.roomId;
-    console.log(roomId, "roomId")
+    // console.log(roomId, "roomId")
     // for (let g in updatedGraph.nodes) {
     // //   this.props.sigma.graph.dropNode(g)
     //   let temp = {};
@@ -108,7 +108,7 @@ class MyCustomSigma extends React.Component {
 
 
   render() {
-    console.log(this.props.sigma.graph)
+    // console.log(this.props.sigma.graph)
     
     return (
       <div></div>

@@ -16,8 +16,9 @@ class WindowView extends Component {
           <p>{this.props.description}</p>
 
           {this.props.items.map((item, id) => (
-            <span key={id}>{item}</span>
+            <span key={id}>{ ` ${item} ` }</span>
           ))}
+          {this.props.items.length ? <button onClick = {this.props.take}>Bag Treasure </button> : <div></div>}
         </div>
 
         <div className="messages">
@@ -34,6 +35,7 @@ class WindowView extends Component {
             <p key={id}>{error}</p>
           ))}
         </div>
+        <div>You have ${this.props.gold} value in Gold!</div>
       </div>
     );
   }

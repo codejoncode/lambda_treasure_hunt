@@ -118,9 +118,9 @@ class Map extends Component {
   }
 
   renderMap = () => {
-    console.log(this.state.edges)
-    console.log(this.state.nodes)
-    console.log(this.state.edges)
+    // console.log(this.state.edges)
+    // console.log(this.state.nodes)
+    // console.log(this.state.edges)
     const nodes = this.state.nodes.slice()
     const edges = this.state.edges.slice() 
     // const graph = {nodes, edges}
@@ -183,7 +183,7 @@ class Map extends Component {
 
   render() {
     // return this.renderMap()
-    console.log(this.props.coor)
+    // console.log(this.props.coor)
     if (this.props.initialize && this.state.updated) {
         return (
           <div className="changeCanvas">
