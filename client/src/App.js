@@ -403,7 +403,7 @@ class App extends Component {
         }
       })
       .catch(error => {
-        this.setState({ traveling: "red" });
+        this.setState({ traveling: "red", cooldown : error.response.cooldown }, () => this.handleStartTimer());
         console.log(error);
       });
   };
