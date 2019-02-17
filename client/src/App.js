@@ -125,7 +125,7 @@ class App extends Component {
         );
       })
       .catch(error => {
-        this.setState({ traveling: "red" });
+        this.setState({cooldown : this.state.cooldown * 2, traveling : "red"}, () => this.handleStartTimer())
         console.log(error.response);
       });
   }
@@ -163,7 +163,7 @@ class App extends Component {
       })
       .catch(error => {
         console.error("PROBLEMS WHILE CHECKING STATUS");
-        this.setState({ cooldown: error.data.cooldown });
+        // this.setState({ cooldown: error.data.cooldown });
       });
   };
 
@@ -200,10 +200,11 @@ class App extends Component {
       })
       .catch(error => {
         console.log(error);
-        this.setState({ cooldown: error.data.cooldown, traveling : "red" }, () => this.handleStartTimer());
+        this.setState({ cooldown: this.state.cooldown * 2, traveling : "red" }, () => this.handleStartTimer());
         setTimeout(this.takeTreasureAndBagIt, error.data.cooldown * 1000);
       });
     /*Start again if the itemsAvailable is large*/
+    this.setState({traveling: "green"}, () => this.resetTimer())
   };
 
   sellItemsInBag = () => {
@@ -229,6 +230,7 @@ class App extends Component {
           })
           .catch(error => {
             console.log(error.response);
+            this.setState({cooldown : this.state.cooldown * 2, traveling : "red"}, () => this.handleStartTimer())
           });
       } else {
         this.setState({traveling : "green"}, () => this.resetTimer())
@@ -411,7 +413,7 @@ class App extends Component {
         }
       })
       .catch(error => {
-        this.setState({ traveling: "red", cooldown : error.response.cooldown }, () => this.handleStartTimer());
+        this.setState({ traveling: "red", cooldown : this.state.cooldown * 2 }, () => this.handleStartTimer());
         console.log(error);
       });
   };
@@ -519,6 +521,11 @@ class App extends Component {
   handleStartTimer = () => {
     /*If it is red leave it red else make it yellow */
     const setColor = this.state.traveling === "red" ?   "red" : "yellow"
+    /*if the timer is already going for some reason reset it. */
+    if (this.state.timerStop === false){
+      this.stopTimer();
+      this.resetTimer();
+    }
     this.setState({
       timerStop: false,
       timer: window.setInterval(this.startTimer, 1000),

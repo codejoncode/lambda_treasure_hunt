@@ -3,6 +3,10 @@ import React, { Component } from "react";
 class WindowView extends Component {
   state = {};
 
+  noTravel = () => {
+    alert("No traveling you are already on a set path");
+  };
+
   render() {
     let exits = "";
     for (let exit of this.props.exits) {
@@ -18,7 +22,9 @@ class WindowView extends Component {
           {this.props.items.map((item, id) => (
             <span key={id}>{` ${item} `}</span>
           ))}
-          {this.props.items.length ? (
+          {this.props.items.length &&
+          (this.props.traveling === "green" ||
+            this.props.traveling === "blue") ? (
             <button onClick={this.props.take}>Bag Treasure </button>
           ) : (
             <div />

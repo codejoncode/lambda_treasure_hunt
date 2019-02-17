@@ -53,7 +53,7 @@ class Movement extends Component {
           <div />
         )}
         {Number(this.props.roomId) === 1 &&
-        this.props.treasureBag.length > 0 ? (
+        this.props.treasureBag.length > 0 && (this.props.traveling === "green" || this.props.traveling === "blue") ? (
           <button onClick={this.props.sellItemsInBag}>Sell Items</button>
         ) : (
           <div />
