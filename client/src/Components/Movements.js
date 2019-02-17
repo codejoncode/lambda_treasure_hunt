@@ -47,13 +47,22 @@ class Movement extends Component {
           </button>
         )}
 
-        {this.props.treasureBag.length > 0 ? (<button onClick = {this.props.goToShop}>Go To Shop</button>) : <div></div>}
-        {Number(this.props.roomId) === 1 && this.props.treasureBag.length > 0 ? (<button onClick = {this.props.sellItemsInBag}>Sell Items</button>) : <div></div>}
+        {this.props.treasureBag.length > 0 ? (
+          <button onClick={this.props.goToShop}>Go To Shop</button>
+        ) : (
+          <div />
+        )}
+        {Number(this.props.roomId) === 1 &&
+        this.props.treasureBag.length > 0 ? (
+          <button onClick={this.props.sellItemsInBag}>Sell Items</button>
+        ) : (
+          <div />
+        )}
 
         {this.props.graphLength < 500 ? (
           <button
             onClick={
-              this.props.traveling === "green" || 
+              this.props.traveling === "green" ||
               this.props.traveling === "blue"
                 ? this.props.handleAuto
                 : this.noTravel

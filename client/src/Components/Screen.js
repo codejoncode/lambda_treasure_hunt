@@ -28,8 +28,8 @@ class Screen extends Component {
           items={this.props.items}
           players={this.props.players}
           traveling={this.props.traveling}
-          take = {this.props.take}
-          gold = {this.props.gold}
+          take={this.props.take}
+          gold={this.props.gold}
         />
       </div>
     );

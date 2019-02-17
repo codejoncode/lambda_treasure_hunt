@@ -1,5 +1,5 @@
 Lambda-Treasure-Hunt.sublime-*
-
+/node_modules
 .DS_Store
 .env
 

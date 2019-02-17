@@ -20,7 +20,7 @@ const apiInit = "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/";
 const apiMove = "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/"; // {direction : 'n'}
 const apiTake = "https://lambda-treasure-hunt.herokuapp.com/api/adv/take/"; // {name : 'treasure'}
 const apiSell = "https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/"; // {name: 'treasure', "confirm" : "yes"}
-const apiStatus = "https://lambda-treasure-hunt.herokuapp.com/api/adv/status/" // {}  empty body
+const apiStatus = "https://lambda-treasure-hunt.herokuapp.com/api/adv/status/"; // {}  empty body
 class App extends Component {
   constructor(props) {
     super(props);
@@ -55,16 +55,13 @@ class App extends Component {
       graphXY: data.coor,
       graphExits: data.exits,
       graph: data.graph,
-      // graphXY: {},
-      // graphExits: {},
-      // graph: {},
       path: [],
       display: {},
       roomNumberToGoTo: 0,
-      myItems: [], 
-      travelPath : [],
+      myItems: [],
+      travelPath: [],
       treasureBag: [],
-      gold: 0,
+      gold: 0
     };
   }
 
@@ -72,14 +69,13 @@ class App extends Component {
     const token = `Token ${process.env.REACT_APP_SECRET_CODE}`;
     const reqOptions = {
       headers: {
-        Authorization: token 
+        Authorization: token
       }
     };
 
     const promise = axios.get(apiInit, reqOptions);
     promise
       .then(response => {
-        console.log(response)
         const graph = Object.assign({}, this.state.graph);
 
         const roomId = response.data.room_id;
@@ -90,10 +86,10 @@ class App extends Component {
         const coordinates = response.data.coordinates;
         const errors = response.data.errors;
         const exits = response.data.exits;
-        
+
         /*if the roomId not in the graph create object of question marks */
         if (!(roomId in graph)) {
-          graph[response.data.room_id] = this.setQuestionMark (exits)
+          graph[response.data.room_id] = this.setQuestionMark(exits);
         }
         const description = response.data.description;
         const graphXY = Object.assign({}, this.state.graphXY);
@@ -104,9 +100,8 @@ class App extends Component {
         }
 
         if (!(roomId in graphXY)) {
-          graphXY[roomId] = this.manipulateCoors(coordinates)
+          graphXY[roomId] = this.manipulateCoors(coordinates);
         }
-        // const display = this.drawOutMap(graph, roomId);
         this.setState(
           {
             initialize: true,
@@ -123,21 +118,10 @@ class App extends Component {
             graphXY,
             reqOptions,
             graphExits,
-            // display,
             traveling: "blue"
           },
           this.handleStartTimer()
         );
-        
-        /*Pusher is last it will hault the program as other players enter my zone. */
-        //   var pusher = new Pusher (process.env.REACT_APP_PUSHER_KEY, {
-        //     cluster: 'us2',
-        //     forceTLS: true
-        //   })
-        //   var channel = pusher.subscribe(`p-channel-${response.data.uuid}`);
-        //   channel.bind('broadcast', function(data) {
-        //   alert(JSON.stringify(data));
-        // });
       })
       .catch(error => {
         this.setState({ traveling: "red" });
@@ -149,120 +133,122 @@ class App extends Component {
     /* Once a user gets something to sell in their bag they can then travel to the shop */
 
     /*Get a path to room 1 where the shop is located */
-    const travelPath = this.pathFinder(this.state.roomId, 1)
+    const travelPath = this.pathFinder(this.state.roomId, 1);
     /*Set the path and then go travel SetPath*/
-    this.setState({travelPath}, () => this.travelSetPath())
-  }
+    this.setState({ travelPath }, () => this.travelSetPath());
+  };
 
   checkStatus = () => {
     /*Check the status player strength emcumbrance speed, gold and inventory */
     const token = `Token ${process.env.REACT_APP_SECRET_CODE}`;
-    const body = {}
-    const promise = axios.post(apiStatus, body, {headers: {Authorization : token}, "Content-Type": "application/json"})
+    const body = {};
+    const promise = axios.post(apiStatus, body, {
+      headers: { Authorization: token },
+      "Content-Type": "application/json"
+    });
     promise
       .then(response => {
-        console.log(response)
-        
-        localStorage.setItem("treasureBag", JSON.stringify(response.data.inventory))
-        localStorage.setItem("gold", JSON.stringify(response.data.gold))
-        this.setState({treasureBag : response.data.inventory, cooldown : response.data.cooldown, gold : response.data.gold})
-        console.log(this.state.treasureBag)
-        setTimeout(console.log("waiting"), (response.data.cooldown + 2 )* 1000)
+        localStorage.setItem(
+          "treasureBag",
+          JSON.stringify(response.data.inventory)
+        );
+        localStorage.setItem("gold", JSON.stringify(response.data.gold));
+        this.setState({
+          treasureBag: response.data.inventory,
+          cooldown: response.data.cooldown,
+          gold: response.data.gold
+        });
+        setTimeout(console.log("waiting"), (response.data.cooldown + 2) * 1000);
       })
       .catch(error => {
-        console.error("PROBLEMS WHILE CHECKING STATUS")
-        this.setState({cooldown: error.data.cooldown})
-      })
-  }
+        console.error("PROBLEMS WHILE CHECKING STATUS");
+        this.setState({ cooldown: error.data.cooldown });
+      });
+  };
 
   takeTreasureAndBagIt = () => {
     /*This function will take the items available*/
 
     /*Get copy of array of available items for the room currently in */
-    const itemsAvailable = this.state.items.slice()
-    this.checkStatus()
-    const item = itemsAvailable.pop()
-    const treasureBag = this.state.treasureBag.slice()
-    treasureBag.push(item)
-    const body = {name : item}
+    const itemsAvailable = this.state.items.slice();
+    this.checkStatus();
+    const item = itemsAvailable.pop();
+    const treasureBag = this.state.treasureBag.slice();
+    treasureBag.push(item);
+    const body = { name: item };
     const token = `Token ${process.env.REACT_APP_SECRET_CODE}`;
-    let cooldown = 0 
+    let cooldown = 0;
     const promise = axios.post(apiTake, body, {
       headers: { Authorization: token }
     });
     promise
-    .then(response => {
-        console.log(`${item} taken`)
-        console.log(response.data)
-        cooldown = response.data.cooldown
-        this.setState({cooldown : response.data.cooldown, items: itemsAvailable, treasureBag})
-        if (itemsAvailable.length > 0){
+      .then(response => {
+        cooldown = response.data.cooldown;
+        this.setState({
+          cooldown: response.data.cooldown,
+          items: itemsAvailable,
+          treasureBag
+        });
+        if (itemsAvailable.length > 0) {
           setTimeout(this.takeTreasureAndBagIt, cooldown * 1000);
         }
-    })
-    .catch(error => {
-      console.log(error)
-      this.setState({cooldown : error.data.cooldown})
-      setTimeout(this.takeTreasureAndBagIt, error.data.cooldown * 1000)
-    })
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({ cooldown: error.data.cooldown });
+        setTimeout(this.takeTreasureAndBagIt, error.data.cooldown * 1000);
+      });
     /*Start again if the itemsAvailable is large*/
-    console.log(`Items left to take ${itemsAvailable.length}`)
-    
-  }
+  };
 
   sellItemsInBag = () => {
-    if (this.state.roomId === 1){
-      this.checkStatus()
-      // setTimeout(console.log("more time"), this.state.cooldown * 1000)
-      // const treasureBag = this.state.treasureBag.slice()
+    if (this.state.roomId === 1) {
+      this.checkStatus();
       const treasureBag = JSON.parse(localStorage.getItem("treasureBag"));
-      console.log(treasureBag);
-      if(treasureBag.length > 0){
-        const name = treasureBag.pop()
-        const confirm = "yes"
-        const body = { name, confirm};
+      if (treasureBag.length > 0) {
+        const name = treasureBag.pop();
+        const confirm = "yes";
+        const body = { name, confirm };
         const token = `Token ${process.env.REACT_APP_SECRET_CODE}`;
         const promise = axios.post(apiSell, body, {
           headers: { Authorization: token }
         });
-      promise
-        .then(response => {
-          console.log(`${name} sold`)
-          this.setState({cooldown: response.data.cooldown, treasureBag})
-          if (treasureBag.length > 0){
-            setTimeout(this.sellItemsInBag, response.data.cooldown * 1000);
-          }
-        })
-        .catch(error => {
-          console.log(error.response)
-        })
-
+        promise
+          .then(response => {
+            this.setState({ cooldown: response.data.cooldown, treasureBag });
+            if (treasureBag.length > 0) {
+              setTimeout(this.sellItemsInBag, response.data.cooldown * 1000);
+            }
+          })
+          .catch(error => {
+            console.log(error.response);
+          });
       }
     } else {
-      alert("You can only sell your items in the shop located at room 1")
+      alert("You can only sell your items in the shop located at room 1");
     }
-  }
+  };
 
-  manipulateCoors = (coordinates) => {
+  manipulateCoors = coordinates => {
     /*Take the string (60, 56) and return an array of length two featuring integers */
     const first = Number(coordinates.slice(1, 3));
     const second = Number(coordinates.slice(4, 6));
 
-    return [first, second]
-  }
+    return [first, second];
+  };
 
-  setQuestionMark = (exits) => {
+  setQuestionMark = exits => {
     /*Creates a object with question marks or null for the direction 
       this depends on whether the direction is available totake from the room. 
       returns the object
     */
     const options = ["n", "s", "e", "w"];
-    const temp = {} 
+    const temp = {};
     for (let option of options) {
       temp[option] = exits.includes(option) ? "?" : null;
     }
-    return temp; 
-  }
+    return temp;
+  };
 
   getRandomColor = () => {
     const letters = "0123456789ABCDEF";
@@ -348,7 +334,7 @@ class App extends Component {
       console.log("NO NULL DIRECTIONS");
       return;
     }
-    this.setState({traveling : "Yellow"})
+    this.setState({ traveling: "Yellow" });
     const graph = Object.assign({}, this.state.graph);
     const opposite = this.state.opposites[direction];
 
@@ -372,48 +358,49 @@ class App extends Component {
         const errors = response.data.errors;
         const exits = response.data.exits;
         const graphXY = Object.assign({}, this.state.graphXY);
-        
+
         graphXY[roomId] = this.manipulateCoors(coordinates);
         const graphExits = Object.assign({}, this.state.graphExits);
         graphExits[roomId] = exits;
-        
 
         /*Only want to do it this way if in fact we have not made been in this room */
         if (!(response.data.room_id in graph)) {
-          graph[roomId] = this.setQuestionMark(exits)
+          graph[roomId] = this.setQuestionMark(exits);
         }
-        graph[this.state.roomId][direction] = roomId /* Set current id on state and direction received to new room */
-        graph[roomId][opposite] = this.state.roomId; /*take the current room and opposite direction a set to id on state
+        graph[this.state.roomId][
+          direction
+        ] = roomId; /* Set current id on state and direction received to new room */
+        graph[roomId][
+          opposite
+        ] = this.state.roomId; /*take the current room and opposite direction a set to id on state
         which serves as previous id*/
-        // const display = this.drawOutMap(graph, roomId);
-          this.setState(
-            {
-              previousDirection: direction,
-              previousId: this.state.roomId,
-              graph,
-              roomId,
-              players,
-              roomTitle,
-              items,
-              cooldown,
-              coordinates,
-              errors,
-              moves,
-              exits,
-              graphXY,
-              graphExits,
-              // display,
-              traveling : "green",
-            },
-            this.handleStartTimer()
-          );
+        this.setState(
+          {
+            previousDirection: direction,
+            previousId: this.state.roomId,
+            graph,
+            roomId,
+            players,
+            roomTitle,
+            items,
+            cooldown,
+            coordinates,
+            errors,
+            moves,
+            exits,
+            graphXY,
+            graphExits,
+            traveling: "green"
+          },
+          this.handleStartTimer()
+        );
 
-          if(Object.keys(this.state.graph).length < 500){
-            setTimeout(this.automateMovement, this.state.cooldown* 1000)
-          }
-          if(setPath === true){
-            setTimeout(this.travelSetPath, this.state.cooldown * 1000)
-          }
+        if (Object.keys(this.state.graph).length < 500) {
+          setTimeout(this.automateMovement, this.state.cooldown * 1000);
+        }
+        if (setPath === true) {
+          setTimeout(this.travelSetPath, this.state.cooldown * 1000);
+        }
       })
       .catch(error => {
         this.setState({ traveling: "red" });
@@ -430,18 +417,18 @@ class App extends Component {
   };
 
   automateMovement = () => {
-    this.setState({traveling : "yellow"})
+    this.setState({ traveling: "yellow" });
     let travelPath = this.state.travelPath.slice();
-    let chosen_direction = null 
+    let chosen_direction = null;
 
-    if (travelPath.length === 0){
+    if (travelPath.length === 0) {
       chosen_direction = this.travel();
     }
 
     if (chosen_direction === null && travelPath.length === 0) {
       /*Only need to find a path if chosen_direction is null and travelPath is emtpy*/
-      travelPath = this.pathFinder(this.state.roomId)
-      this.setState({travelPath})
+      travelPath = this.pathFinder(this.state.roomId);
+      this.setState({ travelPath });
     }
 
     /* This is to make sure I always take the set path until empty */
@@ -449,15 +436,15 @@ class App extends Component {
       /* use the point already set as the quickest path*/
       chosen_direction = travelPath.shift();
       /*Take care of handleMove after setting the state */
-      this.setState({travelPath},this.handleMove(chosen_direction))
+      this.setState({ travelPath }, this.handleMove(chosen_direction));
     } else {
       /* this.travel() has a truthy value */
       this.handleMove(chosen_direction);
     }
     /*this is going to keep it going until all rooms have been located*/
-    
-    this.setState({traveling : "blue"})
-  }
+
+    this.setState({ traveling: "blue" });
+  };
 
   startTimer = () => {
     let so = this.state.so; //single ones
@@ -527,40 +514,36 @@ class App extends Component {
   /* decided which direction to travel */
   travel = () => {
     /*This function will return the direction to go in next*/
-    for(let exit in this.state.graph[this.state.roomId]){
-      if (this.state.graph[this.state.roomId][exit] === "?"){
-        return exit
+    for (let exit in this.state.graph[this.state.roomId]) {
+      if (this.state.graph[this.state.roomId][exit] === "?") {
+        return exit;
       }
     }
     /*If no '?' has been found this line will trigger */
-    return null 
+    return null;
   };
 
   makeDirectiousOutOfRoomNumbers = (path, start) => {
     /*path comes in as room numbers and then turned into directions*/
-    console.log(`The path is set: ${path}`)
-    let room = start 
-    const directions = [] 
-    let count = 1 
-    while (count < path.length){
-      for(let exit in this.state.graph[room]){
-        if(this.state.graph[room][exit] === path[count]){
-          directions.push(exit)
+    let room = start;
+    const directions = [];
+    let count = 1;
+    while (count < path.length) {
+      for (let exit in this.state.graph[room]) {
+        if (this.state.graph[room][exit] === path[count]) {
+          directions.push(exit);
           break; /*only looking for one so once found end loop */
         }
       }
-      room = path[count]
-      count += 1 
+      room = path[count];
+      count += 1;
     }
-    console.log("Directions made")
-    return directions
-  } 
+    return directions;
+  };
   /* find a nearest path */
   pathFinder = (start, target = "?") => {
     /* keep track of explored rooms */
-    console.log(`This is the target: ${target}`)
-    console.log(typeof target)
-    const graph = Object.assign({}, this.state.graph)
+    const graph = Object.assign({}, this.state.graph);
     const explored = [];
     /* keep track of all the paths to be checked */
     const queue = new Queue();
@@ -578,12 +561,12 @@ class App extends Component {
         explored.push(node);
         /* go through all neighbour nodes, construct a new path and push it into the queue */
         for (let neighbour in graph[node]) {
-          if(String(graph[node][neighbour]) === String(target)){
-            if(target !== "?"){
+          if (String(graph[node][neighbour]) === String(target)) {
+            if (target !== "?") {
               /*If it is not a question mark direct directions needed*/
-              path.push(graph[node][neighbour])
+              path.push(graph[node][neighbour]);
             }
-            return  this.makeDirectiousOutOfRoomNumbers(path, start)
+            return this.makeDirectiousOutOfRoomNumbers(path, start);
           } else {
             if (explored.includes(neighbour) === false) {
               const new_path = path.slice();
@@ -595,39 +578,34 @@ class App extends Component {
         }
       }
     }
-    console.log("No connecting path exists");
     return [];
   };
 
   goToRoom = () => {
     /*Get the travelPath set the travelPath on state and then travel the set path */
-    console.log(this.state.roomNumberToGoTo)
     const travelPath = this.pathFinder(
-      this.state.roomId, this.state.roomNumberToGoTo
+      this.state.roomId,
+      this.state.roomNumberToGoTo
     );
-    console.log(`travel path created ${travelPath.length}`)
-    this.setState({travelPath},() => this.travelSetPath())
+    this.setState({ travelPath }, () => this.travelSetPath());
   };
 
   travelSetPath = () => {
     /*the state should hold the path to travel take a slice */
-    console.log(`Traveling, travel path ${this.state.travelPath.length}`)
     const travelPath = this.state.travelPath.slice();
     if (travelPath.length > 0) {
       const direction = travelPath.shift();
-      this.setState({ traveling: "yellow", travelPath }, () => this.handleMove(direction, true));
+      this.setState({ traveling: "yellow", travelPath }, () =>
+        this.handleMove(direction, true)
+      );
     } else {
-      this.setState({traveling : "green", travelPath : [] });
-      return 
+      this.setState({ traveling: "green", travelPath: [] });
+      return;
     }
-    
-  }
+  };
 
   render() {
     const display = Object.assign({}, this.drawOutMap(this.state.graph));
-    const count = Object.keys(this.state.graph).length;
-    console.log(`Rooms available = ${count}`); 
-    console.log(this.state.treasureBag)
     return (
       <div className="container backGround">
         <Title />
@@ -640,10 +618,10 @@ class App extends Component {
           graphLength={Object.keys(this.state.graph).length}
           goToRoom={this.goToRoom}
           traveling={this.state.traveling}
-          treasureBag = {this.state.treasureBag}
-          goToShop = {this.goToShop}
-          roomId = {this.state.roomId}
-          sellItemsInBag = {this.sellItemsInBag}
+          treasureBag={this.state.treasureBag}
+          goToShop={this.goToShop}
+          roomId={this.state.roomId}
+          sellItemsInBag={this.sellItemsInBag}
         />
 
         <TimerOnScreen
@@ -665,8 +643,8 @@ class App extends Component {
           cooldown={this.state.cooldown}
           timerCount={this.state.timerCount}
           traveling={this.state.traveling}
-          take = {this.takeTreasureAndBagIt}
-          gold = {this.state.gold}
+          take={this.takeTreasureAndBagIt}
+          gold={this.state.gold}
         />
 
         <DirectionChoice

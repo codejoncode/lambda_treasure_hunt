@@ -16,13 +16,17 @@ class WindowView extends Component {
           <p>{this.props.description}</p>
 
           {this.props.items.map((item, id) => (
-            <span key={id}>{ ` ${item} ` }</span>
+            <span key={id}>{` ${item} `}</span>
           ))}
-          {this.props.items.length ? <button onClick = {this.props.take}>Bag Treasure </button> : <div></div>}
+          {this.props.items.length ? (
+            <button onClick={this.props.take}>Bag Treasure </button>
+          ) : (
+            <div />
+          )}
         </div>
 
         <div className="messages">
-          {this.props.messages.map((message,id) => (
+          {this.props.messages.map((message, id) => (
             <p key={id}>{message}</p>
           ))}
         </div>

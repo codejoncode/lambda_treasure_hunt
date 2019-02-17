@@ -3,28 +3,23 @@ import React, { Component } from "react";
 import { Sigma, RelativeSize } from "react-sigma";
 import MyCustomSigma from "./MyCustomSigma";
 
-
 class Map extends Component {
   state = {
     // display : {},
     updated: false,
-    nodes : [],
-    edges : [], 
-    graph : {edges: [], nodes: []},
-    
+    nodes: [],
+    edges: [],
+    graph: { edges: [], nodes: [] }
   };
   componentDidMount() {
-    console.log("mount up")
-    const updatedGraph = Object.assign({}, this.props.graph)
-    let graph = []
+    const updatedGraph = Object.assign({}, this.props.graph);
+    let graph = [];
     const nodes = [];
     const edges = [];
     const roomId = this.props.roomId;
-    console.log(roomId, "roomId")
     for (let g in updatedGraph) {
       let temp = {};
       if (Number(g) === Number(roomId)) {
-        console.log(`comparison worked ${g}, ${roomId}`)
         temp = {
           id: g,
           label: `${g}`,
@@ -53,11 +48,10 @@ class Map extends Component {
     let count = 0;
     for (let g in updatedGraph) {
       for (let d in updatedGraph[g]) {
-        const id = `id${count}`
+        const id = `id${count}`;
         count += 1;
         if (updatedGraph[g][d] !== null) {
           if (Number(g) === Number(roomId)) {
-            console.log(`comparison worked ${g}, ${roomId}, ${count}`)
             const temp = {
               id: id,
               source: g,
@@ -85,22 +79,17 @@ class Map extends Component {
       nodes,
       edges
     };
-    
+
     this.setState({
       display: this.props.display,
-      nodes, 
+      nodes,
       edges,
-      graph,
+      graph
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    console.log("recieving props")
-    
-  }
-
   componentDidUpdate(prevProps, prevState) {
-    console.log("updating")
+    /*May not be needed now was using this to update canvas map but learned react sigma has to go by other means for update */
     if (
       JSON.stringify(prevProps.display) !== JSON.stringify(this.props.display)
     ) {
@@ -115,79 +104,63 @@ class Map extends Component {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-  }
+  };
 
   renderMap = () => {
-    const nodes = this.state.nodes.slice()
-    const edges = this.state.edges.slice() 
-    let count = 0
-    for(let edge of edges){
-        
-        if(edge.type === "curve"){
-            console.log(edge, count)
-        }
-        count += 1 
-    }
-    count = 0
-    for (let node of nodes){
-        if(node.type === "diamond"){
-            console.log(node, count)
-        }
-    }
+    const nodes = this.state.nodes.slice();
+    const edges = this.state.edges.slice();
 
-    if (nodes.length > 0 && edges.length > 0){
-        if (this.props.initialize && this.state.updated) {
-            return (
-              <div className="changeCanvas">
-                <div className="mapping">
-                  <Sigma
-                    renderer="canvas"
-                    style={{ maxWidth: "inherit", height: "800px" }}
-                    settings={{ drawEdges: true, clone: false }}
-                    graph={{nodes, edges}}
-                  >
-                    <RelativeSize initialSize={15} />
-                  </Sigma>
-                </div>
-              </div>
-            );
-          } else {
-            return <div>MUST INITIALIZE</div>;
-          }
-    }
-    return <div>MUST INITIALIZE</div>
-
-  }
-  handleMapClick = (event) => {
-    console.log(event)
-  }
-
-  render() {
-    // return this.renderMap()
-    // console.log(this.props.coor)
-    if (this.props.initialize && this.state.updated) {
+    if (nodes.length > 0 && edges.length > 0) {
+      if (this.props.initialize && this.state.updated) {
         return (
           <div className="changeCanvas">
             <div className="mapping">
               <Sigma
-                onMouseOver = {this.handleMapClick}
                 renderer="canvas"
                 style={{ maxWidth: "inherit", height: "800px" }}
-                settings={{ drawEdges: true, clone: false, immutable: false}}
-                graph={this.props.display}
+                settings={{ drawEdges: true, clone: false }}
+                graph={{ nodes, edges }}
               >
                 <RelativeSize initialSize={15} />
-                <MyCustomSigma roomId = {this.props.roomId} display = {this.props.display} coor = {this.props.coor}/>
               </Sigma>
-              
             </div>
           </div>
         );
       } else {
         return <div>MUST INITIALIZE</div>;
       }
-    
-}
-}
-export default Map; 
+    }
+    return <div>MUST INITIALIZE</div>;
+  };
+  handleMapClick = event => {
+    console.log(event);
+  };
 
+  render() {
+    if (this.props.initialize && this.state.updated) {
+      return (
+        <div className="changeCanvas">
+          <div className="mapping">
+            <Sigma
+              onMouseOver={this.handleMapClick}
+              renderer="canvas"
+              style={{ maxWidth: "inherit", height: "800px" }}
+              settings={{ drawEdges: true, clone: false, immutable: false }}
+              graph={this.props.display}
+            >
+              <RelativeSize initialSize={15} />
+              <MyCustomSigma
+                roomId={this.props.roomId}
+                display={this.props.display}
+                coor={this.props.coor}
+              />
+            </Sigma>
+          </div>
+        </div>
+      );
+    } else {
+      return <div>MUST INITIALIZE</div>;
+    }
+  }
+}
+export default Map;
