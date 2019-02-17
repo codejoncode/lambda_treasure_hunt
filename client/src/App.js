@@ -32,6 +32,7 @@ class App extends Component {
       sm: 0,
       tm: 0,
       timerCount: 0,
+      tick : 0,
       timerStop: false,
       timer: "",
       reqOptions: {},
@@ -135,7 +136,7 @@ class App extends Component {
     /*Get a path to room 1 where the shop is located */
     const travelPath = this.pathFinder(this.state.roomId, 1);
     /*Set the path and then go travel SetPath*/
-    this.setState({ travelPath }, () => this.travelSetPath());
+    this.setState({ travelPath, traveling: "yellow" }, () => this.travelSetPath());
   };
 
   checkStatus = () => {
@@ -187,15 +188,19 @@ class App extends Component {
         this.setState({
           cooldown: response.data.cooldown,
           items: itemsAvailable,
-          treasureBag
+          treasureBag,
+          traveling: "yellow",
         }, this.handleStartTimer());
         if (itemsAvailable.length > 0) {
+          this.setState({traveling: "yellow"})
           setTimeout(this.takeTreasureAndBagIt, cooldown * 1000);
+        } else {
+          this.setState({traveling: "green"}, () => this.resetTimer())
         }
       })
       .catch(error => {
         console.log(error);
-        this.setState({ cooldown: error.data.cooldown }, () => this.handleStartTimer());
+        this.setState({ cooldown: error.data.cooldown, traveling : "red" }, () => this.handleStartTimer());
         setTimeout(this.takeTreasureAndBagIt, error.data.cooldown * 1000);
       });
     /*Start again if the itemsAvailable is large*/
@@ -215,14 +220,18 @@ class App extends Component {
         });
         promise
           .then(response => {
-            this.setState({ cooldown: response.data.cooldown, treasureBag }, () => this.handleStartTimer());
+            this.setState({ cooldown: response.data.cooldown, treasureBag, traveling : "yellow" }, () => this.handleStartTimer());
             if (treasureBag.length > 0) {
               setTimeout(this.sellItemsInBag, response.data.cooldown * 1000);
+            } else {
+              this.setState({traveling: "green"}, () => this.resetTimer())
             }
           })
           .catch(error => {
             console.log(error.response);
           });
+      } else {
+        this.setState({traveling : "green"}, () => this.resetTimer())
       }
     } else {
       alert("You can only sell your items in the shop located at room 1");
@@ -390,7 +399,6 @@ class App extends Component {
             exits,
             graphXY,
             graphExits,
-            traveling: "green"
           },
           this.handleStartTimer()
         );
@@ -443,15 +451,17 @@ class App extends Component {
     }
     /*this is going to keep it going until all rooms have been located*/
 
-    this.setState({ traveling: "blue" });
+    // this.setState({ traveling: "blue" });
   };
 
   startTimer = () => {
+    let tick = this.state.tick // tick count
     let so = this.state.so; //single ones
     let st = this.state.st; //second tens//
     let sm = this.state.sm; // single minutes
     let tm = this.state.tm; //tens minutes
     so++;
+    tick++;
     if (so === 10) {
       st++;
       so = 0;
@@ -470,6 +480,7 @@ class App extends Component {
 
     this.setState({
       timerCount: this.state.timerCount + 1,
+      tick,
       so,
       st,
       sm,
@@ -477,7 +488,7 @@ class App extends Component {
       traveling: "yellow",
     });
 
-    if (this.state.cooldown === this.state.timerCount) {
+    if (this.state.cooldown === this.state.timerCount || this.state.cooldown === tick) {
       this.resetTimer();
     }
     /* This line of code will stop the timer about a second more than the cooldown which should be fine not to run into any issues. */
@@ -506,10 +517,12 @@ class App extends Component {
   };
 
   handleStartTimer = () => {
+    /*If it is red leave it red else make it yellow */
+    const setColor = this.state.traveling === "red" ?   "red" : "yellow"
     this.setState({
       timerStop: false,
       timer: window.setInterval(this.startTimer, 1000),
-      traveling: "yellow"
+      traveling: setColor 
     });
   };
 
@@ -601,7 +614,7 @@ class App extends Component {
         this.handleMove(direction, true)
       );
     } else {
-      this.setState({ traveling: "green", travelPath: [] });
+      this.setState({ traveling: "green", travelPath: [] }, () => this.resetTimer());
       return;
     }
   };
