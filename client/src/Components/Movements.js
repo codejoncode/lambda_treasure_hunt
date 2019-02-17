@@ -48,7 +48,7 @@ class Movement extends Component {
         )}
 
         {this.props.treasureBag.length > 0 ? (<button onClick = {this.props.goToShop}>Go To Shop</button>) : <div></div>}
-        {Number(this.props.roomId) === 1 ? (<button onClick = {this.props.sellItemsInBag}>Sell Items</button>) : <div></div>}
+        {Number(this.props.roomId) === 1 && this.props.treasureBag.length > 0 ? (<button onClick = {this.props.sellItemsInBag}>Sell Items</button>) : <div></div>}
 
         {this.props.graphLength < 500 ? (
           <button

@@ -118,12 +118,8 @@ class Map extends Component {
   }
 
   renderMap = () => {
-    // console.log(this.state.edges)
-    // console.log(this.state.nodes)
-    // console.log(this.state.edges)
     const nodes = this.state.nodes.slice()
     const edges = this.state.edges.slice() 
-    // const graph = {nodes, edges}
     let count = 0
     for(let edge of edges){
         
@@ -162,21 +158,6 @@ class Map extends Component {
     return <div>MUST INITIALIZE</div>
 
   }
-  handleNodeClick = (event) => {
-    const sigma = document.getElementsByClassName("sigma-mouse")
-    
-    console.log(sigma)
-    console.log(event)
-    console.log(event.data.node)
-    event.data.node.color = "blue"
-    console.log(event.data.node)
-    const nodes = event.data.renderer.nodesOnScreen
-
-    for(let node of nodes){
-      node.color = "white";
-    }
-
-  }
   handleMapClick = (event) => {
     console.log(event)
   }
@@ -194,7 +175,6 @@ class Map extends Component {
                 style={{ maxWidth: "inherit", height: "800px" }}
                 settings={{ drawEdges: true, clone: false, immutable: false}}
                 graph={this.props.display}
-                onClickNode = {this.handleNodeClick}
               >
                 <RelativeSize initialSize={15} />
                 <MyCustomSigma roomId = {this.props.roomId} display = {this.props.display} coor = {this.props.coor}/>

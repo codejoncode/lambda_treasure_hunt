@@ -8,93 +8,47 @@ class MyCustomSigma extends React.Component {
     this.state = {}
   }
   componentWillReceiveProps() {
-    // this.props.sigma.graph.kill()
-    // console.log(this.props.sigma)
-    // console.log(this.props.sigma.graph.nodes())
-      
-    // const updatedGraph = Object.assign({}, this.props.display)
-    const nodes = this.props.sigma.graph.nodes()
-    // for(let node of nodes){
-    //     console.log(node)
-    //     node.borderColor = "white";
-    // }
-
-    const coors  = Object.assign({}, this.props.coor)
-    // console.log(coors)
-    // console.log(coors[0])
-    // let graph = []
-    // const nodes = [];
-    // const edges = [];
+    const nodes = this.props.sigma.renderers[0].nodesOnScreen
+    console.log(nodes)
+    const edges = this.props.sigma.renderers[0].edgesOnScreen
     const roomId = this.props.roomId;
-    // console.log(roomId, "roomId")
-    // for (let g in updatedGraph.nodes) {
-    // //   this.props.sigma.graph.dropNode(g)
-    //   let temp = {};
-      
-    //   const xCoor = coors[g][0]
-    //   const yCoor = coors[g][1]
-    //   const key = String(g)
-    //   if (Number(g) === Number(roomId)) {
-    //     console.log(`comparison worked ${g}, ${roomId}`)
-    //     temp = {
-    //       id: g,
-    //       label: `At ${g}`,
-    //       x: xCoor,
-    //       y: yCoor,
-    //       size: 15,
-    //       color: "red",
-    //       borderColor: this.getRandomColor(),
-    //       type: "diamond"
-    //     };
-    //   } else {
-    //     temp = {
-    //       id: g,
-    //       label: `${g}`,
-    //       x: xCoor,
-    //       y: yCoor,
-    //       size: 1,
-    //       color: "#282D31",
-    //       borderColor: this.getRandomColor(),
-    //       type: "equilateral"
-    //     };
-    //   }
-    // //   nodes.push(temp);
-    // this.props.sigma.graph.addNode(temp)
-    // }
+    const edgeReg = "#282c34"
+    const edgeSpecial = "#9E0023"
+    const nodeReg = "#282D31"
+    const nodeSpecial = "red"
+    let xCoor = null 
+    let yCoor = null 
 
-    // let count = 0;
-    // for (let g in updatedGraph.edges) {
-    //   for (let d in updatedGraph[g]) {
-    //     const id = `id${count}`
-    //     count += 1;
-    //     if (updatedGraph[g][d] !== null) {
-    //       if (Number(g) === Number(roomId)) {
-    //         console.log(`comparison worked ${g}, ${roomId}, ${count}`)
-    //         const temp = {
-    //           id: id,
-    //           source: g,
-    //           target: updatedGraph[g][d],
-    //           color: "#9E0023",
-    //           type: "curve",
-    //           size: 0.5
-    //         };
-    //         // edges.push(temp);
-    //         this.props.sigma.graph.AddEdge(temp)
-    //       } else {
-    //         const temp = {
-    //           id: id,
-    //           source: g,
-    //           target: updatedGraph[g][d],
-    //           color: "#282c34",
-    //           type: "arrow",
-    //           size: 0.5
-    //         };
-    //         // edges.push(temp);
-    //         this.props.sigma.graph.AddEdge(temp)
-    //       }
-    //     }
-    //   }
-    // }
+    /*Update Node */
+    for(let node of nodes){
+        if(String(node.id) === String(roomId)){
+            node.color = nodeSpecial
+            node.type = "diamond"
+            node.size = 6
+            node.label = ``
+            xCoor = node.x
+            yCoor = node.y
+        } else {
+            node.color = nodeReg
+            node.type = "equilateral"
+            node.size = 4
+            node.label = `${node.id}`
+        }
+    }
+    /*Update edges */
+    for (let edge of edges){
+        if(String(edge.source) === String(roomId)){
+            edge.color = edgeSpecial;
+            edge.type = "curve";
+        } else {
+            edge.color = edgeReg; 
+            edge.type = "arrow";
+        }
+    }
+
+    /*Adjust the map*/
+    this.props.sigma.refresh()
+
   }
 
   getRandomColor = () => {
@@ -108,7 +62,9 @@ class MyCustomSigma extends React.Component {
 
 
   render() {
-    // console.log(this.props.sigma.graph)
+    
+    console.log(this.props.sigma.camera)
+    console.log(this.props.sigma)
     
     return (
       <div></div>
