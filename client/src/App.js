@@ -157,7 +157,7 @@ class App extends Component {
           treasureBag: response.data.inventory,
           cooldown: response.data.cooldown,
           gold: response.data.gold
-        });
+        }, () => this.handleStartTimer());
         setTimeout(console.log("waiting"), (response.data.cooldown + 2) * 1000);
       })
       .catch(error => {
@@ -188,14 +188,14 @@ class App extends Component {
           cooldown: response.data.cooldown,
           items: itemsAvailable,
           treasureBag
-        });
+        }, this.handleStartTimer());
         if (itemsAvailable.length > 0) {
           setTimeout(this.takeTreasureAndBagIt, cooldown * 1000);
         }
       })
       .catch(error => {
         console.log(error);
-        this.setState({ cooldown: error.data.cooldown });
+        this.setState({ cooldown: error.data.cooldown }, () => this.handleStartTimer());
         setTimeout(this.takeTreasureAndBagIt, error.data.cooldown * 1000);
       });
     /*Start again if the itemsAvailable is large*/
@@ -215,7 +215,7 @@ class App extends Component {
         });
         promise
           .then(response => {
-            this.setState({ cooldown: response.data.cooldown, treasureBag });
+            this.setState({ cooldown: response.data.cooldown, treasureBag }, () => this.handleStartTimer());
             if (treasureBag.length > 0) {
               setTimeout(this.sellItemsInBag, response.data.cooldown * 1000);
             }
