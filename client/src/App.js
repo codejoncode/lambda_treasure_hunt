@@ -473,7 +473,8 @@ class App extends Component {
       so,
       st,
       sm,
-      tm
+      tm,
+      traveling: "yellow",
     });
 
     if (this.state.cooldown === this.state.timerCount) {
@@ -499,7 +500,8 @@ class App extends Component {
       tm: 0,
       tick: 0,
       timerCount: 0,
-      timerStop: timerStop
+      timerStop: timerStop,
+      traveling: "green",
     });
   };
 
