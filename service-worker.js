@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/lambda_treasure_hunt/precache-manifest.b93dac2512dbe6ab35bf18945a05490e.js"
+  "/lambda_treasure_hunt/precache-manifest.4af601378a3447652a915e53d6c092ac.js"
 );
 
 workbox.clientsClaim();
