@@ -66,6 +66,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    
     const token = `Token ${process.env.REACT_APP_SECRET_CODE}`;
     const reqOptions = {
       headers: {
