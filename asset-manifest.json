@@ -1,7 +1,7 @@
 {
   "main.css": "/lambda_treasure_hunt/static/css/main.f37575f8.chunk.css",
-  "main.js": "/lambda_treasure_hunt/static/js/main.44a702b9.chunk.js",
-  "main.js.map": "/lambda_treasure_hunt/static/js/main.44a702b9.chunk.js.map",
+  "main.js": "/lambda_treasure_hunt/static/js/main.68a2c51d.chunk.js",
+  "main.js.map": "/lambda_treasure_hunt/static/js/main.68a2c51d.chunk.js.map",
   "static/css/1.798ae364.chunk.css": "/lambda_treasure_hunt/static/css/1.798ae364.chunk.css",
   "static/js/1.a0c90524.chunk.js": "/lambda_treasure_hunt/static/js/1.a0c90524.chunk.js",
   "static/js/1.a0c90524.chunk.js.map": "/lambda_treasure_hunt/static/js/1.a0c90524.chunk.js.map",
@@ -10,6 +10,6 @@
   "static/css/1.798ae364.chunk.css.map": "/lambda_treasure_hunt/static/css/1.798ae364.chunk.css.map",
   "static/css/main.f37575f8.chunk.css.map": "/lambda_treasure_hunt/static/css/main.f37575f8.chunk.css.map",
   "index.html": "/lambda_treasure_hunt/index.html",
-  "precache-manifest.fb2bd5a5ba5d019d4b547401fb976520.js": "/lambda_treasure_hunt/precache-manifest.fb2bd5a5ba5d019d4b547401fb976520.js",
+  "precache-manifest.66710200cb3f92febb129b5900540325.js": "/lambda_treasure_hunt/precache-manifest.66710200cb3f92febb129b5900540325.js",
   "service-worker.js": "/lambda_treasure_hunt/service-worker.js"
 }
